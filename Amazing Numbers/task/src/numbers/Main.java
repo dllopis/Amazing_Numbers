@@ -3,13 +3,16 @@ import java.text.DecimalFormat;
 import java.util.*;
 
 public class Main {
-    private final static Scanner scanner = new Scanner(System.in);
-    private final DecimalFormat formatter = new DecimalFormat("#,###");
-    private Map<String, Boolean> map;
+    private final Scanner scanner;
+    private final DecimalFormat formatter;
     private final Set<String> properties;
+    private Map<String, Boolean> map;
 
     public Main()   {
+        this.scanner = new Scanner(System.in);
+        this.formatter = new DecimalFormat("#,###");
         this.properties = new HashSet<>();
+
         this.properties.add("even");
         this.properties.add("odd");
         this.properties.add("buzz");
@@ -17,6 +20,8 @@ public class Main {
         this.properties.add("gapful");
         this.properties.add("palindromic");
         this.properties.add("spy");
+        this.properties.add("sunny");
+        this.properties.add("square");
     }
     private boolean isEven(long input)  {   return input % 2 == 0;  }
     private boolean isOdd(long input)   {   return input % 2 == 1;  }
@@ -45,12 +50,16 @@ public class Main {
         long sum = 0;
         long product = 1;
 
-        for (String digit : digits) {
+        for (String digit : digits) {;
             long num = Long.parseLong(digit);
             sum += num;
             product *= num;
         }
         return sum == product;
+    }
+    private boolean isSunny(long num)   {   return isSquare(num + 1);   }
+    private boolean isSquare(long num)  {
+        return num >= 0 ? (long)Math.sqrt(num) * (long)Math.sqrt(num) == num ? true : false : false;
     }
     /*
         Populate our map with boolean values of each property, so that
@@ -65,6 +74,8 @@ public class Main {
         this.map.put("gapful", isGapful(input));
         this.map.put("palindromic", isPalindromic(input));
         this.map.put("spy", isSpy(input));
+        this.map.put("sunny", isSunny(num));
+        this.map.put("square", isSquare(num));
     }
     /*
         Prints out to console whether each property is true of false
@@ -76,7 +87,9 @@ public class Main {
                         "duck: %b%n" +
                         "palindromic: %b%n" +
                         "gapful: %b%n" +
-                        "spy: %b%n%n" ,
+                        "spy: %b%n" +
+                        "sunny: %b%n" +
+                        "square: %b%n%n",
                 this.formatter.format(Long.parseLong(input)),
                 this.map.get("even"),
                 this.map.get("odd"),
@@ -84,7 +97,9 @@ public class Main {
                 this.map.get("duck"),
                 this.map.get("palindromic"),
                 this.map.get("gapful"),
-                this.map.get("spy")
+                this.map.get("spy"),
+                this.map.get("sunny"),
+                this.map.get("square")
         );
     }
     /*
@@ -125,7 +140,17 @@ public class Main {
             }
             case 3  :   {
                 System.out.printf("The property [%s] is wrong.\n" +
-                        "Available properties: [EVEN, ODD, BUZZ, DUCK, PALINDROMIC, GAPFUL, SPY]%n%n", userInput);
+                        "Available properties: [EVEN, ODD, BUZZ, DUCK, PALINDROMIC, GAPFUL, SPY, SQUARE, SUNNY]%n%n", userInput);
+                break;
+            }
+            case 4  :   {
+                System.out.printf("The request contains mutually exclusive properties: %n[%s]%n" +
+                        "There are no numbers with these properties.%n%n", userInput);
+                break;
+            }
+            case 5 :    {
+                System.out.printf("The properties [%s] are wrong.\n" +
+                        "Available properties: [EVEN, ODD, BUZZ, DUCK, PALINDROMIC, GAPFUL, SPY, SQUARE, SUNNY]%n%n", userInput);
                 break;
             }
             default :   break;
@@ -143,9 +168,86 @@ public class Main {
                 "* the first parameter represents a starting number;\n" +
                 "* the second parameter shows how many consecutive\n" +
                 "numbers are to be printed;\n" +
-                "two natural numbers and a property to search for;" +
+                "two natural numbers and a property to search for;\n" +
+                "- two natural numbers and two properties to search for;\n" +
                 "- separate the parameters with one space;\n" +
                 "- enter 0 to exit.\n");
+    }
+    private boolean validateInput(String input)    {
+        String[] userInput = input.split(" ");
+        int len = userInput.length;
+
+        if(len == 1)   {
+            if(userInput[0].matches("[-][0-9]+") || input.matches("[^0-9]+") || input.length() > 19)   {
+                displayCodeMsg(1, "");
+                return false;
+            }
+        }else if(len == 2) {
+            if(userInput[0].matches("[-][0-9]+") || userInput[0].matches("[^0-9]+") || userInput[0].length() > 19)   {
+                displayCodeMsg(1, "");
+                return false;
+            }
+            if(userInput[1].matches("[-][0-9]+") || userInput[1].matches("[^0-9]+") || userInput[1].length() > 19)   {
+                displayCodeMsg(2, "");
+                return false;
+            }
+        }else if(len == 3) {
+            if(userInput[0].matches("[-][0-9]+") || userInput[0].matches("[^0-9]+") || userInput[0].length() > 19)   {
+                displayCodeMsg(1, "");
+                return false;
+            }
+            if(userInput[1].matches("[-][0-9]+") || userInput[1].matches("[^0-9]+") || userInput[1].length() > 19)   {
+                displayCodeMsg(2, "");
+                return false;
+            }
+            if(!userInput[2].matches("[a-zA-Z]+"))  {
+                displayCodeMsg(3, userInput[2]);
+                return false;
+            }
+        }else if(len == 4) {
+            if(userInput[0].matches("[-][0-9]+") || userInput[0].matches("[^0-9]+") || userInput[0].length() > 19)   {
+                displayCodeMsg(1, "");
+                return false;
+            }
+            if(userInput[1].matches("[-][0-9]+") || userInput[1].matches("[^0-9]+") || userInput[1].length() > 19)   {
+                displayCodeMsg(2, "");
+                return false;
+            }
+            if(!userInput[2].matches("[a-zA-Z]+"))  {
+                displayCodeMsg(3, userInput[2]);
+                return false;
+            }
+            if(!userInput[3].matches("[a-zA-Z]+"))  {
+                displayCodeMsg(3, userInput[3]);
+                return false;
+            }
+            /*
+                Error check for mutually exclusive properties and natural numbers
+             */
+            if(Long.parseLong(userInput[0]) > 0 && Long.parseLong(userInput[1]) > 0
+                    && this.properties.contains(userInput[2]) && this.properties.contains(userInput[3])) {
+                String exclusiveCheck = userInput[2] + " " + userInput[3];
+
+                if (exclusiveCheck.equals("even odd") || exclusiveCheck.equals("odd even") ||
+                        exclusiveCheck.equals("duck spy") || exclusiveCheck.equals("spy duck") ||
+                        exclusiveCheck.equals("sunny square") || exclusiveCheck.equals("square sunny")) {
+                    displayCodeMsg(4, exclusiveCheck);
+                    return false;
+                }
+            }   else    {
+                if(!this.properties.contains(userInput[2]) && !this.properties.contains(userInput[3]))   {
+                    displayCodeMsg(5, (userInput[2] + " " + userInput[3]).toUpperCase());
+                    return false;
+                }   else if(!this.properties.contains(userInput[2]))    {
+                    displayCodeMsg(3, userInput[2].toUpperCase());
+                    return false;
+                }   else    {
+                    displayCodeMsg(3, userInput[3] .toUpperCase());
+                    return false;
+                }
+            }
+        }
+        return true;
     }
     /*
         This method is in need of some refactoring and doesn't cover all the basis other then
@@ -153,54 +255,67 @@ public class Main {
         Simply, it checks if the input matches a certain structure with regex.
      */
     private boolean parseInput(String input)   {
-        this.map = new HashMap<>();
-        if(input.equals(""))   {
-            displayInstructions();
-        }else if(input.matches("[-][0-9]+") || input.matches("[^0-9]+")
-                || input.matches("[-][0-9]+\\s[0-9]+")|| input.matches("[^0-9]+\\s[0-9]+")){
-            displayCodeMsg(1, "");
-        }else if(input.matches("[0-9]+\\s[^0-9]+") || input.matches("[0-9]+\\s-[0-9]+")
-        || input.matches("[0-9]+\\s[^0-9]*")){
-            displayCodeMsg(2, "");
-        }else if (input.equals("0")) {
-            displayCodeMsg(0, "");
-            return false;
-        }else if(input.matches("\\d+\\s\\d+\\s[^a-zA-Z]+") || input.matches("\\d+\\s\\d+\\s\\d+"))  {
-            String[] temp = input.split(" ");
-            displayCodeMsg(3, temp[2]);
-        }else if(input.matches("\\d+"))   {
-            map = new HashMap<>();
-            setProperties(input);
-            displayProperty(input);
-        }else if(input.matches("\\d+\\s\\d+"))  {
-            String[] request = input.split(" ");
-            int len = Integer.parseInt(request[1]);
+        if(validateInput(input))    {
+            this.map = new HashMap<>();
 
-            for(int i = 0; i < len; i++) {
+            if(input.equals(""))   {
+                displayInstructions();
+            }else if (input.equals("0")) {
+                displayCodeMsg(0, "");
+                return false;
+            }else if(input.matches("\\d+"))   {
                 map = new HashMap<>();
-                long num = Long.parseLong(request[0]) + i;
-                setProperties(num + "");
-                displayProperties(num + "");
-            }
-        }else if(input.matches("\\d+\\s\\d+\\s[a-zA-Z]+"))   {
-            String[] data = input.split(" ");
-            if(properties.contains(data[2]))   {
+                setProperties(input);
+                displayProperty(input);
+            }else if(input.matches("\\d+\\s\\d+"))  {
+                String[] request = input.split(" ");
+                int len = Integer.parseInt(request[1]);
+
+                for(int i = 0; i < len; i++) {
+                    map = new HashMap<>();
+                    long num = Long.parseLong(request[0]) + i;
+                    setProperties(num + "");
+                    displayProperties(num + "");
+                }
+            }else if(input.matches("\\d+\\s\\d+\\s[a-zA-Z]+"))   {
+                String[] request = input.split(" ");
+                if(properties.contains(request[2]))   {
+                    long start = 0;
+                    int end = Integer.parseInt(request[1]);
+                    int count = 0;
+
+                    while(start < Long.MAX_VALUE && count < end)  {
+                        this.map = new HashMap<>();
+                        long num = Long.parseLong(request[0]) + (start++);
+                        setProperties(num + "");
+
+                        if(map.get(request[2]))    {
+                            displayProperties(num + "");
+                            count++;
+                        }
+                    }
+                }   else    { // remove this!!
+                    displayCodeMsg(3, request[2].toUpperCase());
+                }
+            }else if(input.matches("\\d+\\s\\d+\\s[a-zA-Z]+\\s[a-zA-Z]+"))  {
+                String[] request = input.split(" ");
+                /*
+                    Print 'n' values which satisfy two properties!
+                 */
                 long start = 0;
-                int end = Integer.parseInt(data[1]);
+                int end = Integer.parseInt(request[1]);
                 int count = 0;
 
                 while(start < Long.MAX_VALUE && count < end)  {
                     this.map = new HashMap<>();
-                    long num = Long.parseLong(data[0]) + (start++);
+                    long num = Long.parseLong(request[0]) + (start++);
                     setProperties(num + "");
 
-                    if(map.get(data[2]))    {
+                    if(map.get(request[2]) && map.get(request[3]))    {
                         displayProperties(num + "");
                         count++;
                     }
                 }
-            }   else    {
-                displayCodeMsg(3, data[2].toUpperCase());
             }
         }
         return true;
